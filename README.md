@@ -17,9 +17,9 @@ The app supports global and private messaging, message reactions, read receipts,
 
 
 ---######
-****Deployment
+****Deployment:
 week-5-web-sockets-assignment-nfvic-qj3hm971s-nfvics-projects.vercel.app
-******Domains
+******Domains:
 week-5-web-sockets-assignment-nfvic.vercel.app
 
 ---
