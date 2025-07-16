@@ -1,78 +1,103 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=19925969&assignment_repo_type=AssignmentRepo)
-# Real-Time Chat Application with Socket.io
+# 🔄 Real-Time Chat Application (Socket.io + React + Express)
 
-This assignment focuses on building a real-time chat application using Socket.io, implementing bidirectional communication between clients and server.
+[![Repo](https://img.shields.io/badge/GitHub-Repo-blue?logo=github)](https://github.com/PLP-MERN-Stack-Development/week-5-web-sockets-assignment-nfvic)
 
-## Assignment Overview
+## 🚀 Project Overview
 
-You will build a chat application with the following features:
-1. Real-time messaging using Socket.io
-2. User authentication and presence
-3. Multiple chat rooms or private messaging
-4. Real-time notifications
-5. Advanced features like typing indicators and read receipts
+This is a full-featured real-time chat application built for the [PLP MERN Stack Week 5 Assignment](https://github.com/PLP-MERN-Stack-Development/week-5-web-sockets-assignment-nfvic.git).
+It uses:
+- **Node.js** and **Express** for the backend
+- **Socket.io** for real-time communication
+- **React** (with Vite) for the frontend
 
-## Project Structure
+The app supports global and private messaging, message reactions, read receipts, file/image sharing, real-time notifications, and more. It is fully responsive and works on both desktop and mobile devices.
 
-```
-socketio-chat/
-├── client/                 # React front-end
-│   ├── public/             # Static files
-│   ├── src/                # React source code
-│   │   ├── components/     # UI components
-│   │   ├── context/        # React context providers
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── pages/          # Page components
-│   │   ├── socket/         # Socket.io client setup
-│   │   └── App.jsx         # Main application component
-│   └── package.json        # Client dependencies
-├── server/                 # Node.js back-end
-│   ├── config/             # Configuration files
-│   ├── controllers/        # Socket event handlers
-│   ├── models/             # Data models
-│   ├── socket/             # Socket.io server setup
-│   ├── utils/              # Utility functions
-│   ├── server.js           # Main server file
-│   └── package.json        # Server dependencies
-└── README.md               # Project documentation
+---
+
+## 🛠️ Setup Instructions
+
+### Prerequisites
+- Node.js v18+ installed
+
+### 1. Clone the repository
+```sh
+git clone https://github.com/PLP-MERN-Stack-Development/week-5-web-sockets-assignment-nfvic.git
+cd week-5-web-sockets-assignment-nfvic
 ```
 
-## Getting Started
+### 2. Install server dependencies
+```sh
+cd server
+npm install
+```
 
-1. Accept the GitHub Classroom assignment invitation
-2. Clone your personal repository that was created by GitHub Classroom
-3. Follow the setup instructions in the `Week5-Assignment.md` file
-4. Complete the tasks outlined in the assignment
+### 3. Install client dependencies
+```sh
+cd ../client
+npm install
+```
 
-## Files Included
+### 4. Start the development servers
+- In one terminal:
+  ```sh
+  cd server
+  npm run dev
+  ```
+- In another terminal:
+  ```sh
+  cd client
+  npm run dev
+  ```
 
-- `Week5-Assignment.md`: Detailed assignment instructions
-- Starter code for both client and server:
-  - Basic project structure
-  - Socket.io configuration templates
-  - Sample components for the chat interface
+### 5. Open the app
+- Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
-## Requirements
+---
 
-- Node.js (v18 or higher)
-- npm or yarn
-- Modern web browser
-- Basic understanding of React and Express
+## ✨ Features Implemented
 
-## Submission
+- **User authentication** (username-based, prevents duplicates)
+- **Global chat room** (all users can send/receive messages)
+- **Private messaging** between users
+- **Message reactions** (like, love, etc.)
+- **Read receipts** for messages
+- **File/image sharing** (images shown inline, other files as download links)
+- **Message search** (filter messages by text or sender)
+- **Typing indicators** (see when users are typing)
+- **Online/offline status** for users
+- **Real-time notifications** (sound, browser, unread count)
+- **Reconnection logic** (status indicator, retry button)
+- **Message pagination** (load older messages)
+- **Responsive design** (works on desktop and mobile)
+- **Message delivery acknowledgment** (shows if a message was delivered)
 
-Your work will be automatically submitted when you push to your GitHub Classroom repository. Make sure to:
+---
 
-1. Complete both the client and server portions of the application
-2. Implement the core chat functionality
-3. Add at least 3 advanced features
-4. Document your setup process and features in the README.md
-5. Include screenshots or GIFs of your working application
-6. Optional: Deploy your application and add the URLs to your README.md
+## 🖼️ Screenshots or GIFs of the Application
 
-## Resources
 
-- [Socket.io Documentation](https://socket.io/docs/v4/)
+### Chat UI (Desktop)
+![Chat UI Desktop](./client/public/screenshot-desktop.png)
+
+
+
+---
+
+
+
+## 📋 Notes
+
+- For browser notifications, allow notifications when prompted.
+- For file/image sharing, images are displayed inline; other files are downloadable.
+- All features are implemented as per the [assignment requirements](./Week5-Assignment.md).
+
+
+
+---
+
+## 📚 Resources
+
+- [Socket.io Documentation](https://socket.io/docs/)
 - [React Documentation](https://react.dev/)
 - [Express.js Documentation](https://expressjs.com/)
-- [Building a Chat Application with Socket.io](https://socket.io/get-started/chat) 
+- [Assignment Repo](https://github.com/PLP-MERN-Stack-Development/week-5-web-sockets-assignment-nfvic.git) 

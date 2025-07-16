@@ -35,9 +35,30 @@ export const useSocket = () => {
     socket.disconnect();
   };
 
-  // Send a message
+  // Send a message with delivery acknowledgment
   const sendMessage = (message) => {
-    socket.emit('send_message', { message });
+    // Create a temporary ID for the pending message
+    const tempId = 'temp-' + Date.now() + '-' + Math.random();
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: tempId,
+        message,
+        sender: socket.auth?.username || 'Me',
+        senderId: socket.id,
+        timestamp: new Date().toISOString(),
+        pending: true,
+      },
+    ]);
+    socket.emit('send_message', { message }, (ack) => {
+      if (ack && ack.delivered && ack.messageId) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === tempId ? { ...msg, id: ack.messageId, pending: false, delivered: true } : msg
+          )
+        );
+      }
+    });
   };
 
   // Send a private message
@@ -45,10 +66,50 @@ export const useSocket = () => {
     socket.emit('private_message', { to, message });
   };
 
+  // Send a file/image message with delivery acknowledgment
+  const sendFileMessage = (fileData, caption = '') => {
+    const tempId = 'temp-file-' + Date.now() + '-' + Math.random();
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: tempId,
+        isFile: true,
+        file: fileData,
+        message: caption,
+        sender: socket.auth?.username || 'Me',
+        senderId: socket.id,
+        timestamp: new Date().toISOString(),
+        pending: true,
+      },
+    ]);
+    socket.emit('file_message', { ...fileData, caption }, (ack) => {
+      if (ack && ack.delivered && ack.messageId) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === tempId ? { ...msg, id: ack.messageId, pending: false, delivered: true } : msg
+          )
+        );
+      }
+    });
+  };
+
   // Set typing status
   const setTyping = (isTyping) => {
     socket.emit('typing', isTyping);
   };
+
+  // Add a function to react to a message
+  const reactToMessage = (messageId, reaction) => {
+    socket.emit('react_message', { messageId, reaction });
+  };
+
+  // Mark a message as read
+  const markMessageRead = (messageId) => {
+    socket.emit('message_read', { messageId });
+  };
+
+  // Allow setting messages directly (for initial load)
+  const setMessagesDirect = (msgs) => setMessages(msgs);
 
   // Socket event listeners
   useEffect(() => {
@@ -108,6 +169,29 @@ export const useSocket = () => {
       setTypingUsers(users);
     };
 
+    // Reaction events
+    const onMessageReaction = ({ messageId, reactions }) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, reactions } : msg
+        )
+      );
+    };
+
+    // Read receipt events
+    const onMessageReadUpdate = ({ messageId, readBy }) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, readBy } : msg
+        )
+      );
+    };
+
+    // File message event
+    const onFileMessage = (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    };
+
     // Register event listeners
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
@@ -117,6 +201,9 @@ export const useSocket = () => {
     socket.on('user_joined', onUserJoined);
     socket.on('user_left', onUserLeft);
     socket.on('typing_users', onTypingUsers);
+    socket.on('message_reaction', onMessageReaction);
+    socket.on('message_read_update', onMessageReadUpdate);
+    socket.on('file_message', onFileMessage);
 
     // Clean up event listeners
     return () => {
@@ -128,6 +215,9 @@ export const useSocket = () => {
       socket.off('user_joined', onUserJoined);
       socket.off('user_left', onUserLeft);
       socket.off('typing_users', onTypingUsers);
+      socket.off('message_reaction', onMessageReaction);
+      socket.off('message_read_update', onMessageReadUpdate);
+      socket.off('file_message', onFileMessage);
     };
   }, []);
 
@@ -143,6 +233,10 @@ export const useSocket = () => {
     sendMessage,
     sendPrivateMessage,
     setTyping,
+    reactToMessage,
+    markMessageRead,
+    sendFileMessage,
+    setMessages: setMessagesDirect,
   };
 };
 

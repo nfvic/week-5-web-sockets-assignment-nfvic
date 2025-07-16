@@ -37,6 +37,18 @@ io.on('connection', (socket) => {
 
   // Handle user joining
   socket.on('user_join', (username) => {
+    // Prevent duplicate usernames
+    const usernameTaken = Object.values(users).some(
+      (user) => user.username === username
+    );
+    if (usernameTaken) {
+      socket.emit('username_error', 'Username is already taken.');
+      return;
+    }
+    if (!username || typeof username !== 'string' || !username.trim()) {
+      socket.emit('username_error', 'Invalid username.');
+      return;
+    }
     users[socket.id] = { username, id: socket.id };
     io.emit('user_list', Object.values(users));
     io.emit('user_joined', { username, id: socket.id });
@@ -44,7 +56,7 @@ io.on('connection', (socket) => {
   });
 
   // Handle chat messages
-  socket.on('send_message', (messageData) => {
+  socket.on('send_message', (messageData, ack) => {
     const message = {
       ...messageData,
       id: Date.now(),
@@ -61,6 +73,10 @@ io.on('connection', (socket) => {
     }
     
     io.emit('receive_message', message);
+    // Send delivery acknowledgment to sender
+    if (typeof ack === 'function') {
+      ack({ delivered: true, messageId: message.id });
+    }
   });
 
   // Handle typing indicator
@@ -93,6 +109,56 @@ io.on('connection', (socket) => {
     socket.emit('private_message', messageData);
   });
 
+  // Handle message reactions
+  socket.on('react_message', ({ messageId, reaction }) => {
+    // Find the message
+    const msg = messages.find((m) => m.id === messageId);
+    if (msg) {
+      if (!msg.reactions) msg.reactions = {};
+      // Use username as key to allow one reaction per user
+      const username = users[socket.id]?.username || 'Anonymous';
+      msg.reactions[username] = reaction;
+      io.emit('message_reaction', { messageId, reactions: msg.reactions });
+    }
+  });
+
+  // Handle message read receipts
+  socket.on('message_read', ({ messageId }) => {
+    const msg = messages.find((m) => m.id === messageId);
+    if (msg) {
+      if (!msg.readBy) msg.readBy = [];
+      const username = users[socket.id]?.username || 'Anonymous';
+      if (!msg.readBy.includes(username)) {
+        msg.readBy.push(username);
+        io.emit('message_read_update', { messageId, readBy: msg.readBy });
+      }
+    }
+  });
+
+  // Handle file/image messages
+  socket.on('file_message', (fileData, ack) => {
+    const message = {
+      id: Date.now(),
+      sender: users[socket.id]?.username || 'Anonymous',
+      senderId: socket.id,
+      timestamp: new Date().toISOString(),
+      isFile: true,
+      file: {
+        name: fileData.name,
+        type: fileData.type,
+        data: fileData.data, // base64 string
+        url: fileData.url || null,
+      },
+      message: fileData.caption || '',
+    };
+    messages.push(message);
+    if (messages.length > 100) messages.shift();
+    io.emit('file_message', message);
+    if (typeof ack === 'function') {
+      ack({ delivered: true, messageId: message.id });
+    }
+  });
+
   // Handle disconnection
   socket.on('disconnect', () => {
     if (users[socket.id]) {
@@ -111,7 +177,18 @@ io.on('connection', (socket) => {
 
 // API routes
 app.get('/api/messages', (req, res) => {
-  res.json(messages);
+  // Pagination: ?before=<timestamp>&limit=<number>
+  let { before, limit } = req.query;
+  limit = parseInt(limit) || 20;
+  let filtered = messages;
+  if (before) {
+    filtered = filtered.filter(m => new Date(m.timestamp) < new Date(before));
+  }
+  // Sort by timestamp descending, then take the most recent 'limit' messages
+  filtered = filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, limit);
+  // Return in chronological order
+  filtered = filtered.reverse();
+  res.json(filtered);
 });
 
 app.get('/api/users', (req, res) => {
