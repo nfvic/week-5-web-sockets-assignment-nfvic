@@ -77,7 +77,8 @@ npm install
 
 
 ### Chat UI (Desktop)
-![Chat UI Desktop](./client/public/screenshot-desktop.png)
+<img width="1366" height="678" alt="image" src="https://github.com/user-attachments/assets/493a681d-5827-4b12-9210-d501f503036f" />
+
 
 
 
