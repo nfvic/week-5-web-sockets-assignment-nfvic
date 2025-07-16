@@ -103,7 +103,7 @@ const App = () => {
 
   useEffect(() => {
     // Sound notification
-    const audio = new window.Audio('https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa1c82.mp3'); // short notification sound
+    const audio = new window.Audio('/audio/audio_124bfa1c82.mp3'); // short notification sound
     // Browser notification
     if (window.Notification && Notification.permission !== 'granted') {
       Notification.requestPermission();
