@@ -14,25 +14,25 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const allowedOrigins = [
-  'http://localhost:5173',
-  'https://week-5-web-sockets-assignment-nfvic.vercel.app',
-  'https://week-5-web-sockets-assignment-nfvic-qj3hm971s-nfvics-projects.vercel.app'
+  "http://localhost:5173",
+  "https://week-5-web-sockets-assignment-nfvic.vercel.app",
+  "https://week-5-web-sockets-assignment-nfvic-git-main-nfvics-projects.vercel.app",
+  "https://week-5-web-sockets-assignment-nfvic-r0disg6td-nfvics-projects.vercel.app"
 ];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    const allowed = allowedOrigins.some(o => origin && origin.startsWith(o));
-    callback(null, allowed ? true : false);
-  },
-  methods: ["GET", "POST"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
 
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: true,
   }
 });
 
