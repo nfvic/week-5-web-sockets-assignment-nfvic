@@ -20,16 +20,20 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    const allowed = allowedOrigins.some(o => origin && origin.startsWith(o));
+    callback(null, allowed ? true : false);
+  },
+  methods: ["GET", "POST"],
   credentials: true
 }));
 
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 });
 
 // Middleware
