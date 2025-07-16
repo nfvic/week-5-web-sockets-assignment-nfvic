@@ -148,12 +148,22 @@ const App = () => {
     }
   }, [unreadCount]);
 
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
   useEffect(() => {
     if (!initialMessagesLoaded) {
       const fetchLatest = async () => {
-        const res = await fetch('/api/messages?limit=20');
-        const data = await res.json();
-        setMessages(data);
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/messages?limit=20`);
+          if (res.ok) {
+            const data = await res.json();
+            setMessages(data);
+          } else {
+            const text = await res.text();
+            console.error('Fetch failed:', res.status, text);
+          }
+        } catch (err) {
+          console.error('Network or parsing error:', err);
+        }
         setInitialMessagesLoaded(true);
       };
       fetchLatest();
@@ -164,11 +174,20 @@ const App = () => {
     if (messages.length === 0) return;
     setLoadingOlder(true);
     const oldest = messages[0];
-    const res = await fetch(`/api/messages?before=${encodeURIComponent(oldest.timestamp)}&limit=20`);
-    const data = await res.json();
-    if (data.length === 0) setHasMore(false);
-    // Prepend older messages
-    data.forEach(msg => socket.emit('receive_message', msg));
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/messages?before=${encodeURIComponent(oldest.timestamp)}&limit=20`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.length === 0) setHasMore(false);
+        // Prepend older messages
+        data.forEach(msg => socket.emit('receive_message', msg));
+      } else {
+        const text = await res.text();
+        console.error('Fetch failed:', res.status, text);
+      }
+    } catch (err) {
+      console.error('Network or parsing error:', err);
+    }
     setLoadingOlder(false);
   };
 
