@@ -11,6 +11,11 @@ It uses:
 - **React** (with Vite) for the frontend
 
 The app supports global and private messaging, message reactions, read receipts, file/image sharing, real-time notifications, and more. It is fully responsive and works on both desktop and mobile devices.
+
+
+
+
+
 ---######
 ****Deployment
 week-5-web-sockets-assignment-nfvic-qj3hm971s-nfvics-projects.vercel.app
